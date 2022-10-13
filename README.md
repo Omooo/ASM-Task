@@ -57,6 +57,20 @@ public class PrintMethodParamsCoreClass {
 }
 ```
 
-#### 任务四：
+#### 任务四：删除方法里面的日志输出语句
 
-#### 
+修改前的 Java 文件：
+
+```java
+public class DeleteLogInvoke {
+
+    public String print(String name, int age) {
+        System.out.println(name);
+        String result = name + ": " + age;
+        System.out.println(result);
+        System.out.println("Delete current line.");
+        return result;
+    }
+}
+```
+
