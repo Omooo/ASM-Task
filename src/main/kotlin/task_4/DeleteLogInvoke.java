@@ -10,6 +10,7 @@ public class DeleteLogInvoke {
         String result = name + ": " + age;
         System.out.println(result);
         System.out.println("Delete current line.");
+        System.out.println("name = " + name + ", age = " + age);
         return result;
     }
 }
