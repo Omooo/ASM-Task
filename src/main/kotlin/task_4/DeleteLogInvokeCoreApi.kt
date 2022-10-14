@@ -45,15 +45,33 @@ private fun deleteLogInvokeByCoreApi() {
 
     classWriter.toByteArray().apply {
         toFile("files/DeleteLogInvokeCoreClass.class")
-        loadClass("sample.DeleteLogInvokeCoreClass")
+        loadClass("sample.DeleteLogInvokeCoreClass")?.apply {
+            val printMethod = getMethod("print", String::class.java, Int::class.java)
+            printMethod.invoke(getConstructor().newInstance(), "Omooo", 25)
+        }
     }
 
 }
 
 private class DeleteMethodVisitor(methodVisitor: MethodVisitor) : MethodVisitor(Opcodes.ASM9, methodVisitor) {
     override fun visitFieldInsn(opcode: Int, owner: String?, name: String?, descriptor: String?) {
-        println("$name $owner $descriptor")
-
+        if (opcode == Opcodes.GETSTATIC && owner == "out" && name == "java/lang/System" && descriptor == "Ljava/io/PrintStream;") {
+            return
+        }
         super.visitFieldInsn(opcode, owner, name, descriptor)
     }
+
+    override fun visitMethodInsn(
+        opcode: Int,
+        owner: String?,
+        name: String?,
+        descriptor: String?,
+        isInterface: Boolean
+    ) {
+        if (opcode == Opcodes.INVOKEVIRTUAL && owner == "java/io/PrintStream" && name == "println" && descriptor == "(Ljava/lang/String;)V") {
+            return
+        }
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
+    }
+
 }
