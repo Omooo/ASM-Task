@@ -7,7 +7,9 @@ ASM-Task
 1. 使用 Core&Tree Api 读取 ArrayList
 2. 使用 Core&Tree Api 生成 Main 类
 3. 使用 Core&Tree Api 输出方法的入参和出参
-4. 使用 Core&Tree Api 
+4. 使用 Core&Tree Api 删除方法里面的日志输出语句
+4. 使用 Core&Tree Api 输出特定方法耗时
+4. 
 
 #### 任务一：读取 ArrayList 类
 
@@ -91,4 +93,48 @@ public class DeleteLogInvokeCoreClass {
 }
 ```
 
-#### 任务五：
+#### 任务五：输出特定方法的方法耗时
+
+修改前的 Java 文件：
+
+```java
+public class MeasureMethodTime {
+
+    @MeasureTime
+    public void measure() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+目标生成的类文件，且需要验证反射该 class 的正确性：
+
+```java
+public class MeasureMethodTimeCoreClass {
+    public MeasureMethodTimeCoreClass() {
+    }
+
+    @MeasureTime
+    public void measure() {
+        long var1 = System.currentTimeMillis();
+
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException var8) {
+            RuntimeException var10000 = new RuntimeException(var8);
+            long var4 = System.currentTimeMillis();
+            System.out.println(var4 - var1);
+            throw var10000;
+        }
+
+        long var6 = System.currentTimeMillis();
+        System.out.println(var6 - var1);
+    }
+}
+```
+
+#### 任务六：
