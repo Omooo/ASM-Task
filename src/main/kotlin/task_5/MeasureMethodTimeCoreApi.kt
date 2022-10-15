@@ -67,7 +67,9 @@ private class InternalMethodVisitor(methodAccess: Int, methodDesc: String, metho
     var endTimeIndex = 0
 
     override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
-        trackMethodFlag = Type.getDescriptor(MeasureTime::class.java) == descriptor
+        if (Type.getDescriptor(MeasureTime::class.java) == descriptor) {
+            trackMethodFlag = true
+        }
         return super.visitAnnotation(descriptor, visible)
     }
 
