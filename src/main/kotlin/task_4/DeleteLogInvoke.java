@@ -11,6 +11,8 @@ public class DeleteLogInvoke {
         System.out.println(result);
         System.out.println("Delete current line.");
         System.out.println("name = " + name + ", age = " + age);
+        System.out.printf("name: %s%n", name);
+        System.out.println(String.format("age: %d", age));
         return result;
     }
 }
