@@ -28,8 +28,7 @@ private fun measureMethodTimeByTreeApi() {
 
     classNode.name = "sample/MeasureMethodTimeTreeClass"
     classNode.methods.forEach { methodNode ->
-        // TODO: 注解类型为什么必须是 Runtime？
-        if (methodNode.visibleAnnotations?.map { it.desc }
+        if (methodNode.invisibleAnnotations?.map { it.desc }
                 ?.contains(Type.getDescriptor(MeasureTime::class.java)) == true) {
             val localVariablesSize = methodNode.localVariables.size
             // 在方法的第一个指令之前插入
