@@ -9,7 +9,7 @@ ASM-Task
 3. 使用 Core&Tree Api 输出方法的入参和出参
 4. 使用 Core&Tree Api 删除方法里面的日志输出语句
 4. 使用 Core&Tree Api 输出特定方法耗时
-4. 
+4. 使用 Core&Tree Api 线程重命名
 
 #### 任务一：读取 ArrayList 类
 
@@ -137,4 +137,49 @@ public class MeasureMethodTimeCoreClass {
 }
 ```
 
-#### 任务六：
+#### 任务六：线程重命名
+
+修改前的 Java 文件：
+
+```java
+public class ThreadReName {
+
+    public static void main(String[] args) {
+        // 不带线程名称
+        new Thread(new InternalRunnable()).start();
+
+        // 带线程名称
+        Thread thread0 = new Thread(new InternalRunnable(), "thread0");
+        System.out.println("thread0: " + thread0.getName());
+        thread0.start();
+
+        Thread thread1 = new Thread(new InternalRunnable());
+        // 设置线程名字
+        thread1.setName("thread1");
+        System.out.println("thread1: " + thread1.getName());
+        thread1.start();
+    }
+
+}
+```
+
+目标生成的类文件，且需要验证反射该 class 的正确性：
+
+```java
+public class ThreadReNameCoreClass {
+    public ThreadReNameCoreClass() {
+    }
+
+    public static void main(String[] var0) {
+        (new ShadowThread(new InternalRunnable(), "sample/ThreadReNameCoreClass#main-Thread-0")).start();
+        ShadowThread var1 = new ShadowThread(new InternalRunnable(), "thread0", "sample/ThreadReNameCoreClass#main-Thread-1");
+        System.out.println("thread0: " + var1.getName());
+        var1.start();
+        ShadowThread var2 = new ShadowThread(new InternalRunnable(), "sample/ThreadReNameCoreClass#main-Thread-2");
+        var2.setName(ShadowThread.makeThreadName("thread1", "sample/ThreadReNameCoreClass#main-Thread-3"));
+        System.out.println("thread1: " + var2.getName());
+        var2.start();
+    }
+}
+```
+
