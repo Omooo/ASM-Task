@@ -11,6 +11,7 @@ ASM-Task
 4. 使用 Core&Tree Api 输出特定方法耗时
 4. 使用 Core&Tree Api 统一线程重命名
 4. 使用 Core&Tree Api 给特定方法加上 try-catch 块
+4. 使用 Core&Tree Api 替换方法调用，为系统类或第三方库代码兜底
 
 #### 任务一：读取 ArrayList 类
 
@@ -215,4 +216,34 @@ public class CatchMethodInvokeCoreClass {
 }
 ```
 
-#### 任务八：
+#### 任务八：使用 Core&Tree Api 替换方法调用，为系统类或第三方库代码兜底
+
+这个任务的思路来源于：[Booster 修复系统 Bug - Android 7.1 Toast 崩溃](https://booster.johnsonlee.io/zh/guide/bugfixing/toast-crash-on-android-25.html#%E6%A0%B9%E6%9C%AC%E5%8E%9F%E5%9B%A0)
+
+其实延续上个任务的思路，为特定方法添加 try-catch 也能解决，但是 try-catch 过于粗暴，替换方法调用的方式灵活性更好些（其实在任务六里也有用到该思路）。
+
+修改前的 Java 文件：
+
+```java
+public class ReplaceMethodInvoke {
+    public static void main(String[] args) {
+        // throw NPE
+        new Toast().show();
+    }
+}
+```
+
+目标生成的类文件，且需要验证反射该 class 的正确性：
+
+```java
+public class ReplaceMethodInvokeCoreClass {
+    public ReplaceMethodInvokeCoreClass() {
+    }
+
+    public static void main(String[] var0) {
+        ShadowToast.show(new Toast(), "sample/ReplaceMethodInvokeCoreClass");
+    }
+}
+```
+
+#### 任务九：
