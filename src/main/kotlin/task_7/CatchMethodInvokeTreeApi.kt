@@ -1,19 +1,20 @@
 package task_7
 
+import common.*
 import common.isEmpty
-import common.isMethodReturn
 import common.loadClass
 import common.toFile
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Label
-import org.objectweb.asm.Opcodes
+import org.objectweb.asm.*
 import org.objectweb.asm.tree.*
 
 fun main() {
     catchMethodInvokeByTreeApi()
 }
 
+// 参考自: https://github.com/s1rius/pudge/blob/d6c110f023/willfix-core/src/main/java/wtf/s1/willfix/core/visitors/HasReturnMethodTransformer.kt
+/**
+ * 使用 Tree Api try-catch 特定方法
+ */
 fun catchMethodInvokeByTreeApi() {
     val classReader = ClassReader(CatchMethodInvoke::class.java.canonicalName)
     val classNode = ClassNode(Opcodes.ASM9)
@@ -23,27 +24,40 @@ fun catchMethodInvokeByTreeApi() {
     classNode.methods.filter {
         it.name != "<init>" && !it.isEmpty()
     }.forEach { methodNode ->
+
         val fromLabel = LabelNode()
         val toLabel = LabelNode()
         val targetLabel = LabelNode()
+
+        val returnType = Type.getReturnType(methodNode.desc)
+        val nextLocalIndex = methodNode.maxLocals
+
         methodNode.tryCatchBlocks.add(TryCatchBlockNode(fromLabel, toLabel, targetLabel, "java/lang/Exception"))
+        // 插入 try 块
+        methodNode.instructions.insertBefore(methodNode.instructions.first, InsnList().apply {
+            add(InsnNode(returnType.const0Opcode()))
+            add(VarInsnNode(returnType.getOpcode(Opcodes.ISTORE), nextLocalIndex))
+            add(fromLabel)
+        })
+
+        // 插入 catch 块
+        methodNode.instructions.add(InsnList().apply {
+            add(toLabel)
+            add(targetLabel)
+            add(VarInsnNode(Opcodes.ASTORE, nextLocalIndex + 1))
+            add(VarInsnNode(Opcodes.ALOAD, nextLocalIndex + 1))
+            add(MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Exception", "printStackTrace", "()V"))
+            add(VarInsnNode(returnType.getOpcode(Opcodes.ILOAD), nextLocalIndex))
+            add(InsnNode(returnType.getOpcode(Opcodes.IRETURN)))
+        })
 
         methodNode.instructions.filter {
-            it.opcode.isMethodReturn()
+            it.opcode in Opcodes.IRETURN until Opcodes.ARETURN
         }.forEach {
-            val varIndex = methodNode.maxLocals + 1
-            methodNode.instructions.insert(fromLabel)
-            methodNode.instructions.insertBefore(it, toLabel)
-
-            methodNode.instructions.insert(it, InsnNode(Opcodes.IRETURN))
-            methodNode.instructions.insert(it, InsnNode(Opcodes.ICONST_0))
-            methodNode.instructions.insert(
-                it,
-                MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Exception", "printStackTrace", "()V")
-            )
-            methodNode.instructions.insert(it, VarInsnNode(Opcodes.ALOAD, varIndex))
-            methodNode.instructions.insert(it, VarInsnNode(Opcodes.ASTORE, varIndex))
-            methodNode.instructions.insert(it, targetLabel)
+            methodNode.instructions.insertBefore(it, InsnList().apply {
+                add(VarInsnNode(returnType.getOpcode(Opcodes.ISTORE), nextLocalIndex))
+                add(VarInsnNode(returnType.getOpcode(Opcodes.ILOAD), nextLocalIndex))
+            })
         }
     }
 

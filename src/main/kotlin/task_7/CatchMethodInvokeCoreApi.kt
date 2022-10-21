@@ -1,5 +1,6 @@
 package task_7
 
+import common.const0Opcode
 import common.loadClass
 import common.toFile
 import org.objectweb.asm.*
@@ -79,35 +80,14 @@ private class InternalMethodVisitor(
         mv.visitVarInsn(Opcodes.ASTORE, varIndex)
         mv.visitVarInsn(Opcodes.ALOAD, varIndex)
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Exception", "printStackTrace", "()V", false)
-        // 异常时返回默认值
-        when (Type.getMethodType(methodDesc).returnType.sort) {
-            Type.VOID -> {
+
+        Type.getMethodType(methodDesc).returnType.apply {
+            if (sort == Type.VOID) {
                 mv.visitInsn(Opcodes.RETURN)
-            }
-
-            Type.INT, Type.CHAR, Type.BOOLEAN, Type.SHORT, Type.BYTE -> {
-                mv.visitInsn(Opcodes.ICONST_0)
-                mv.visitInsn(Opcodes.IRETURN)
-            }
-
-            Type.DOUBLE -> {
-                mv.visitInsn(Opcodes.DCONST_0)
-                mv.visitInsn(Opcodes.DRETURN)
-            }
-
-            Type.FLOAT -> {
-                mv.visitInsn(Opcodes.FCONST_0)
-                mv.visitInsn(Opcodes.FRETURN)
-            }
-
-            Type.LONG -> {
-                mv.visitInsn(Opcodes.LCONST_0)
-                mv.visitInsn(Opcodes.LRETURN)
-            }
-
-            Type.OBJECT -> {
-                mv.visitInsn(Opcodes.ACONST_NULL)
-                mv.visitInsn(Opcodes.ARETURN)
+            } else {
+                // 异常时返回默认值
+                mv.visitInsn(this.const0Opcode())
+                mv.visitInsn(this.getOpcode(IRETURN))
             }
         }
         super.visitMaxs(maxStack, maxLocals)

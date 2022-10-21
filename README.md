@@ -186,3 +186,33 @@ public class ThreadReNameCoreClass {
 
 #### 任务七：给特定方法加上 try-catch 块
 
+修改前的 Java 文件：
+
+```java
+public class CatchMethodInvoke {
+
+    public int calc() {
+        return 1 / 0;
+    }
+}
+```
+
+目标生成的类文件，且需要验证反射该 class 的正确性：
+
+```java
+public class CatchMethodInvokeCoreClass {
+    public CatchMethodInvokeCoreClass() {
+    }
+
+    public int calc() {
+        try {
+            return 1 / 0;
+        } catch (Exception var2) {
+            var2.printStackTrace();
+            return 0;
+        }
+    }
+}
+```
+
+#### 任务八：
