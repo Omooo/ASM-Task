@@ -9,7 +9,8 @@ ASM-Task
 3. 使用 Core&Tree Api 输出方法的入参和出参
 4. 使用 Core&Tree Api 删除方法里面的日志输出语句
 4. 使用 Core&Tree Api 输出特定方法耗时
-4. 使用 Core&Tree Api 线程重命名
+4. 使用 Core&Tree Api 统一线程重命名
+4. 使用 Core&Tree Api 给特定方法加上 try-catch 块
 
 #### 任务一：读取 ArrayList 类
 
@@ -182,4 +183,6 @@ public class ThreadReNameCoreClass {
     }
 }
 ```
+
+#### 任务七：给特定方法加上 try-catch 块
 
