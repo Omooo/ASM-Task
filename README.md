@@ -12,6 +12,7 @@ ASM-Task
 4. 使用 Core&Tree Api 统一线程重命名
 4. 使用 Core&Tree Api 给特定方法加上 try-catch 块
 4. 使用 Core&Tree Api 替换方法调用，为系统类或第三方库代码兜底
+4. 使用 Core&Tree Api 进行序列化检查
 
 #### 任务一：读取 ArrayList 类
 
@@ -246,4 +247,44 @@ public class ReplaceMethodInvokeCoreClass {
 }
 ```
 
-#### 任务九：
+#### 任务九：序列化检查
+
+这个任务的思路来源于：[ByteX - 序列化检查](https://github.com/bytedance/ByteX/blob/master/serialization-check-plugin/README-zh.md)
+
+对于 Java 的序列化，有以下几条规则需要遵守（也就是 IDEA Inspections 里的几条规则）：
+
+1. 实现了 Serializable 的类未提供 serialVersionUID 字段
+2. 实现了 Serializable 的类包含非 transient、static 的字段，这些字段并未实现 Serializable 接口
+3. 未实现 Serializable 接口的类，包含 transient、serialVersionUID 字段
+4. 实现了 Serializable 的非静态内部类，它的外层类并未实现 Serializable 接口
+
+针对以下代码：
+
+```java
+public class SerializationCheck implements Serializable {
+
+    private ItemBean1 itemBean1;
+    private ItemBean2 itemBean2;
+    private transient ItemBean3 itemBean3;
+    private String name;
+    private int age;
+
+    static class ItemBean1 {
+    }
+
+    static class ItemBean2 implements Serializable {
+    }
+
+    static class ItemBean3 {
+    }
+}
+```
+
+检查输出：
+
+```java
+Attention: Non-serializable field 'itemBean1' in a Serializable class [sample/SerializationCheckCoreClass]
+Attention: This [sample/SerializationCheckCoreClass] class is serializable, but does not define a 'serialVersionUID' field.
+```
+
+#### 任务十：
