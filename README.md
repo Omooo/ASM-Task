@@ -13,6 +13,7 @@ ASM-Task
 4. 使用 Core&Tree Api 给特定方法加上 try-catch 块
 4. 使用 Core&Tree Api 替换方法调用，为系统类或第三方库代码兜底
 4. 使用 Core&Tree Api 进行序列化检查
+4. 使用 Core&Tree Api 进行常量内联
 
 #### 任务一：读取 ArrayList 类
 
@@ -287,4 +288,7 @@ Attention: Non-serializable field 'itemBean1' in a Serializable class [sample/Se
 Attention: This [sample/SerializationCheckCoreClass] class is serializable, but does not define a 'serialVersionUID' field.
 ```
 
-#### 任务十：
+#### 任务十：常量内联
+
+这个任务的思路来源于：[ByteX - 常量内联](https://github.com/bytedance/ByteX/blob/master/const-inline-plugin/README-zh.md)
+
