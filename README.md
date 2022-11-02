@@ -13,6 +13,7 @@ ASM-Task
 4. 使用 Core&Tree Api 给特定方法加上 try-catch 块
 4. 使用 Core&Tree Api 替换方法调用，为系统类或第三方库代码兜底
 4. 使用 Core&Tree Api 进行序列化检查
+4. 使用 Core&Tree Api 检查是否有调用不存在的方法
 
 #### 任务一：读取 ArrayList 类
 
@@ -287,4 +288,42 @@ Attention: Non-serializable field 'itemBean1' in a Serializable class [sample/Se
 Attention: This [sample/SerializationCheckCoreClass] class is serializable, but does not define a 'serialVersionUID' field.
 ```
 
-#### 任务十：
+#### 任务十：检查是否有调用不存在的方法
+
+这个任务的思路来源于：[ByteX - 非法引用检查](https://github.com/bytedance/ByteX/blob/master/refer-check-plugin/README-zh.md)
+
+不过示例里写的相对简单很多，怎么模拟引用找不到但编译不会报错的情况呢？我们可以借助于依赖方式：
+
+```groovy
+    compileOnly(project(":library1"))
+    runtimeOnly(fileTree("libs") { include("*.jar") })
+```
+
+针对以下代码：
+
+```java
+fun main() {
+    // throw IllegalAccessError:
+    // class task_11.ReferCheckKt tried to access private method LibraryClass.testPrivateMethod()V
+    LibraryClass().testPrivateMethod()
+    // throw NoSuchMethodError: LibraryClass.testModifyParamsMethod()V
+    LibraryClass().testModifyParamsMethod()
+    // NoSuchMethodError: LibraryClass.testModifyReturnTypeMethod()V
+    LibraryClass().testModifyReturnTypeMethod()
+}
+```
+
+检查输出：
+
+```
+在 sample/ReferCheckTreeClass$testPrivateMethod 方法里监测到非法调用: 
+    IllegalAccessError: 试图调用 private final LibraryClass.testPrivateMethod()V 方法.
+   
+在 sample/ReferCheckTreeClass$testModifyParamsMethod 方法里监测到非法调用: 
+    NoSuchMethodError: 找不到 LibraryClass.testModifyParamsMethod()V 方法.
+    
+在 sample/ReferCheckTreeClass$testModifyReturnTypeMethod 方法里监测到非法调用: 
+    NoSuchMethodError: 找不到 LibraryClass.testModifyReturnTypeMethod()V 方法.
+```
+
+#### 任务十一：
